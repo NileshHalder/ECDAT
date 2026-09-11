@@ -1,0 +1,13 @@
+{
+  "RSA": { "replacement": "ML-KEM (Kyber)", "fips": "FIPS 203", "use_case": "key exchange" },
+  "ECDSA": { "replacement": "ML-DSA (Dilithium)", "fips": "FIPS 204", "use_case": "signatures" },
+  "Diffie-Hellman": { "replacement": "ML-KEM (Kyber)", "fips": "FIPS 203", "use_case": "key exchange" },
+  "DES": { "replacement": "AES-256", "fips": null, "use_case": "symmetric encryption" },
+  "3DES": { "replacement": "AES-256", "fips": null, "use_case": "symmetric encryption" },
+  "MD5": { "replacement": "SHA-3 or SHA-256", "fips": null, "use_case": "hashing" },
+  "SHA-1": { "replacement": "SHA-3 or SHA-256", "fips": null, "use_case": "hashing" },
+  "AES": { "replacement": "AES-256 (verify key size)", "fips": null, "use_case": "increase key size for Grover's resistance" },
+  "ChaCha20": { "replacement": "ChaCha20 (256-bit, already adequate)", "fips": null, "use_case": "monitor only" },
+  "HMAC": { "replacement": "HMAC-SHA-256/512 (verify hash function used)", "fips": null, "use_case": "message authentication" },
+  "PBKDF2": { "replacement": "Argon2id", "fips": null, "use_case": "key derivation" }
+}

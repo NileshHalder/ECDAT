@@ -1,0 +1,57 @@
+[theme]
+base = "dark"
+primaryColor = "#3B82F6"
+backgroundColor = "#0B0F19"
+secondaryBackgroundColor = "#141925"
+textColor = "#F8FAFC"
+linkColor = "#38BDF8"
+codeBackgroundColor = "#0E1321"
+codeTextColor = "#38BDF8"
+borderColor = "#1E293B"
+
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "10px"
+buttonRadius = "10px"
+linkUnderline = false
+
+# Fonts - Inter for UI, JetBrains Mono for code
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+baseFontSize = 14
+baseFontWeight = 400
+codeFontSize = "13px"
+headingFontSizes = ["30px", "22px", "18px", "16px", "14px", "12px"]
+headingFontWeights = [700, 600, 600, 600, 500, 500]
+
+# Semantic colors
+greenColor = "#22C55E"
+yellowColor = "#FBBF24"
+orangeColor = "#F97316"
+redColor = "#EF4444"
+blueColor = "#3B82F6"
+violetColor = "#A855F7"
+grayColor = "#64748B"
+
+# Chart categorical colors
+chartCategoricalColors = ["#22C55E", "#FBBF24", "#F97316", "#EF4444", "#3B82F6", "#A855F7", "#2DD4BF"]
+
+# Sequential colors for heatmaps
+chartSequentialColors = ["#0B0F19", "#0E1321", "#141925", "#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#F8FAFC"]
+
+[theme.dark]
+primaryColor = "#3B82F6"
+backgroundColor = "#0B0F19"
+secondaryBackgroundColor = "#141925"
+textColor = "#F8FAFC"
+codeBackgroundColor = "#0E1321"
+codeTextColor = "#38BDF8"
+borderColor = "#1E293B"
+chartCategoricalColors = ["#22C55E", "#FBBF24", "#F97316", "#EF4444", "#3B82F6", "#A855F7", "#2DD4BF"]
+
+[theme.sidebar]
+backgroundColor = "#0E1321"
+secondaryBackgroundColor = "#141925"
+textColor = "#F8FAFC"
+borderColor = "#1E293B"
+primaryColor = "#3B82F6"
