@@ -97,15 +97,7 @@ def _render_nova_top_bar(nav_selection: str):
             <div style="color: {THEME['text_dim']}; font-size: 1.2rem; font-weight: 300;">/</div>
             <div style="color: {THEME['neon_blue']}; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">{clean_title}</div>
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-grow: 1; margin-left: 40px;">
-            <!-- Informational status, not a non-functional search control. -->
-            <div style="flex-grow: 1; max-width: 480px; margin: 0 40px 0 0;">
-                <div style="background: rgba(7, 10, 17, 0.6); border: 1px solid {THEME['border_dim']}; border-radius: 12px; padding: 10px 18px; color: {THEME['text_dim']}; font-size: 0.95rem; display: flex; align-items: center; gap: 12px;">
-                    <span style="color: {THEME['neon_blue']}; font-size: 1.1rem;">●</span> Current scan workspace
-                </div>
-            </div>
-            <!-- Right side: sync + status -->
-            <div style="display: flex; align-items: center; gap: 30px;">
+        <div style="display: flex; align-items: center; gap: 30px; margin-left: auto;">
                 <div style="text-align: right;">
                     <div style="font-size: 0.6rem; color: {THEME['text_muted']}; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800;">Last Sync</div>
                     <div style="font-size: 0.95rem; color: #fff; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px;">{last_scan_str}</div>
@@ -114,7 +106,6 @@ def _render_nova_top_bar(nav_selection: str):
                     <div style="width: 8px; height: 8px; border-radius: 50%; background: {THEME['neon_green']}; box-shadow: 0 0 12px {THEME['neon_green']}; animation: status-pulse 1.5s infinite;"></div>
                     <span style="font-size: 0.75rem; font-weight: 800; color: {THEME['neon_green']}; letter-spacing: 1px;">ONLINE</span>
                 </div>
-            </div>
         </div>
     </div>
     """
