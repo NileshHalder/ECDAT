@@ -15,7 +15,7 @@
   - 3-Layer Enterprise Cryptographic Discovery & Correlation Architecture.
   - Page 8 Migration Priority Scoring Breakdown (`Why #1?` formula = Priority Score 95).
   - Page 9 What-If Migration Simulator with Scenario Comparison across `NOW`, `+6 MONTHS`, and `+12 MONTHS`.
-  - Inventory Coverage Map Tree Hierarchy Map ("We know where we are blind.").
+  - Inventory Coverage Map Tree Hierarchy Map.
   - Evidence Graph Relationship Tree (`RSA-2048` -> `Source/Binary/Certificate` -> `Auth Service` -> `API Gateway` -> `Customer Data`).
   - 3x3 Quantum Risk vs Business Criticality Matrix Grid with cell highlight (73 Assets 🔴).
   - Web ZIP/Folder Drag-and-Drop upload backend API (`POST /scan/upload`).

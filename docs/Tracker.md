@@ -54,7 +54,7 @@
 | Task | Status | Owner | Notes |
 |---|---|---|---|
 | Page 1 — Overview & Posture | 🟢 | AI | Readiness score, 6 KPI cards, donut chart, asset risk bars, top priorities |
-| Page 2 — Discovery & Coverage | 🟢 | AI | 8 channel bars, state metrics, Inventory map tree ("We know where we are blind") |
+| Page 2 — Discovery & Coverage | 🟢 | AI | 8 channel bars, state metrics, Inventory map tree |
 | Page 3 — Inventory & Domain Map | 🟢 | AI | Enterprise domain matrix & asset distribution |
 | Page 4 — Asset Intelligence | 🟢 | AI | Deep-dive metadata card, evidence checklist, blind spot warnings |
 | Page 5 — Evidence Graph | 🟢 | AI | End-to-end cipher-to-data relationship graph tree |

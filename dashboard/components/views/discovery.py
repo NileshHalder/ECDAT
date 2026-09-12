@@ -74,12 +74,7 @@ def render_discovery(results: dict[str, Any]):
         st.markdown(
             f"""
             <div style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
-                <div class="blind-quote" style="margin-top: 0;">
-                    <span style="color:{THEME['text_muted']}; font-size:0.85rem;">Post-Quantum Intelligence:</span><br/>
-                    <strong style="color:{THEME['text_hero']}; font-size:1.15rem; letter-spacing:0.5px; line-height: 1.4;">"We know where we are blind. That's more valuable than a false sense of security."</strong><br/>
-                    <div style="margin-top: 10px; height: 2px; width: 40px; background: {THEME['neon_blue']};"></div>
-                </div>
-                <div style="margin-top: 20px; padding: 20px; background: {THEME['bg_card']}; border: 1px solid {THEME['border_dim']}; border-radius: 12px;">
+                <div style="padding: 20px; background: {THEME['bg_card']}; border: 1px solid {THEME['border_dim']}; border-radius: 12px;">
                     <div style="color: {THEME['text_muted']}; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Last Scan Duration</div>
                     <div style="color: {THEME['neon_green']}; font-size: 1.2rem; font-weight: 800;">{_scan_duration(results)}</div>
                 </div>
