@@ -1,3 +1,8 @@
-python -m uvicorn api.main:app --reload --port 8000
+# Option 1: Run from root workspace folder (d:\ECDATFINAL\ECDAT)
+python -m uvicorn api.main:app --app-dir ECDAT --reload --port 8000
+streamlit run ECDAT/dashboard/app.py
 
-streamlit run dashboard/app.py
+# Option 2: Run from inside the ECDAT subfolder
+cd ECDAT
+python -m uvicorn api.main:app --reload --port 8000
+streamlit run dashboard/app.py

@@ -9,8 +9,9 @@ import pandas as pd
 import streamlit as st
 
 from ..data import get_risk_distribution, process_findings
-from ..theme import THEME, nova_kpi
+from ..theme import THEME, nova_kpi, raw_html
 from scanner.impact import analyze_what_if
+from scanner.risk import mosca_score
 
 ALLOCATION_FTE = {"Limited": 2, "Moderate": 4, "Aggressive": 8}
 ALLOCATION_THROUGHPUT = {"Limited": 2.0, "Moderate": 4.0, "Aggressive": 8.0}
@@ -66,6 +67,74 @@ def _simulate(dist: dict[str, int], timeline: int, allocation: str,
     }
 
 
+def _render_mosca_timeline(processed_findings: list[dict[str, Any]]) -> None:
+    """Render Mosca's Theorem Timeline (X + Y > Z)."""
+    st.markdown('<div style="color:#fff;font-weight:700;font-size:1rem;margin:20px 0 10px;text-transform:uppercase;letter-spacing:1px;">Mosca Theorem Timeline Exposure (X + Y vs Z)</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.caption("Mosca's Theorem: If Data Shelf-life (Y) + Migration Time (X) > CRQC Arrival (Z = 9 years), the asset is exposed to Harvest-Now-Decrypt-Later (HNDL).")
+
+        categories: dict[str, dict[str, Any]] = {}
+        for f in processed_findings:
+            cat = str(f.get("category", "asymmetric")).lower()
+            if cat not in categories:
+                h = f.get("hndl") or mosca_score(cat)
+                categories[cat] = {
+                    "category": cat.title(),
+                    "findings": 0,
+                    "data_lifetime": h.get("data_lifetime_years", 5),
+                    "migration_time": h.get("migration_time_years", 2),
+                    "crqc_arrival": h.get("crqc_arrival_years", 9),
+                    "hndl_risk": h.get("hndl_risk", False),
+                }
+            categories[cat]["findings"] += 1
+
+        max_years = 20
+        bars_html = ""
+        for cat_data in categories.values():
+            name = cat_data["category"]
+            cnt = cat_data["findings"]
+            y_life = cat_data["data_lifetime"]
+            x_mig = cat_data["migration_time"]
+            z_crqc = cat_data["crqc_arrival"]
+            total = y_life + x_mig
+            is_at_risk = total > z_crqc
+
+            y_pct = (y_life / max_years) * 100
+            x_pct = (x_mig / max_years) * 100
+            z_pct = (z_crqc / max_years) * 100
+
+            status_badge = (
+                f'<span style="background:rgba(255,75,75,0.2); color:{THEME["neon_red"]}; border:1px solid {THEME["neon_red"]}; padding:2px 8px; border-radius:4px; font-weight:800; font-size:0.75rem;">HNDL EXPOSED ({total}y > {z_crqc}y)</span>'
+                if is_at_risk else
+                f'<span style="background:rgba(0,255,128,0.2); color:{THEME["neon_green"]}; border:1px solid {THEME["neon_green"]}; padding:2px 8px; border-radius:4px; font-weight:800; font-size:0.75rem;">TIMELINE SAFE ({total}y ≤ {z_crqc}y)</span>'
+            )
+
+            bars_html += f"""
+            <div style="margin-bottom:20px; position:relative;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="color:#fff; font-size:0.9rem; font-weight:700;">{name} Cryptography ({cnt} assets)</span>
+                    {status_badge}
+                </div>
+                <div style="position:relative; height:24px; background:rgba(255,255,255,0.05); border-radius:6px; overflow:hidden; display:flex;">
+                    <!-- Data Shelf-life (Y) -->
+                    <div style="width:{y_pct}%; height:100%; background:{THEME['neon_blue']}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:700;" title="Data Lifetime Y = {y_life}y">
+                        Y = {y_life}y
+                    </div>
+                    <!-- Migration Time (X) -->
+                    <div style="width:{x_pct}%; height:100%; background:{THEME['neon_orange'] if not is_at_risk else THEME['neon_red']}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:700;" title="Migration Time X = {x_mig}y">
+                        X = {x_mig}y
+                    </div>
+                </div>
+                <!-- CRQC Arrival Line Indicator (Z) -->
+                <div style="position:absolute; top:28px; left:{z_pct}%; transform:translateX(-50%); color:{THEME['neon_purple']}; font-size:0.7rem; font-weight:800;">
+                    ▲ CRQC Threshold (Z = {z_crqc}y)
+                </div>
+            </div>
+            """
+
+        raw_html(bars_html + "<div style='height:15px;'></div>")
+
+
 def _render_what_if(findings: list[dict[str, Any]]) -> None:
     algorithms = sorted({str(f.get("algorithm", "UNKNOWN")) for f in findings if f.get("algorithm")})
     if not algorithms:
@@ -94,6 +163,15 @@ def _render_what_if(findings: list[dict[str, Any]]) -> None:
             st.info(f"No scanned assets currently depend on {algorithm}.")
             return
 
+        # Explicitly list affected services and business functions by name
+        s_col, b_col = st.columns(2)
+        with s_col:
+            services_str = ", ".join(impact.get("services", [])) or "None"
+            st.markdown(f"**Affected Services ({len(impact.get('services', []))}):** `{services_str}`")
+        with b_col:
+            funcs_str = ", ".join(impact.get("business_functions", [])) or "None"
+            st.markdown(f"**Affected Business Functions ({len(impact.get('business_functions', []))}):** `{funcs_str}`")
+
         st.markdown('<div style="color:#fff;font-weight:700;font-size:0.95rem;margin:18px 0 10px;text-transform:uppercase;letter-spacing:1px;">Why affected?</div>', unsafe_allow_html=True)
         path_df = pd.DataFrame([{
             "Crypto Dependency": f"{path['algorithm']} asset {path['asset']}",
@@ -116,10 +194,15 @@ def render_migration_and_simulator(results: dict[str, Any]):
     """, unsafe_allow_html=True)
 
     raw_findings = results.get("findings", [])
+    processed = process_findings(raw_findings)
+
     _render_what_if(raw_findings)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    dist = get_risk_distribution(process_findings(raw_findings))
+    _render_mosca_timeline(processed)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    dist = get_risk_distribution(processed)
     work_items = dist.get("Critical", 0) + dist.get("Vulnerable", 0) + dist.get("Partial", 0)
     if work_items == 0:
         st.info("No quantum-vulnerable findings in the current scan — nothing to simulate.")
@@ -189,3 +272,4 @@ def render_migration_and_simulator(results: dict[str, Any]):
     with c3:
         st.metric("Est. Ready Date", ready_date.strftime("%b %Y"),
                   delta=f"{abs(slack)} mo {'ahead of' if slack >= 0 else 'behind'} plan")
+

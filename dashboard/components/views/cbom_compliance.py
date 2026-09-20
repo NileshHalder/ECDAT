@@ -146,15 +146,40 @@ def render_cbom_and_compliance(scan_id: str):
         },
     )
 
-    st.markdown('<div style="color:#fff;font-weight:700;font-size:1rem;margin:22px 0 15px;text-transform:uppercase;letter-spacing:1px;">Evidence Relationships</div>', unsafe_allow_html=True)
+    st.markdown('<div style="color:#fff;font-weight:700;font-size:1rem;margin:22px 0 15px;text-transform:uppercase;letter-spacing:1px;">Evidence Relationships Graph & Lineage</div>', unsafe_allow_html=True)
     relationships = graph.get("relationships", [])
-    nodes = {node["id"]: node for node in graph.get("nodes", [])}
-    if relationships:
+    raw_nodes = graph.get("nodes", [])
+    nodes_map = {node["id"]: node for node in raw_nodes}
+
+    if relationships and raw_nodes:
+        from .evidence_graph import _render_force_graph
+        graph_nodes = []
+        for n in raw_nodes:
+            ntype = n.get("type", "Component")
+            color = THEME["neon_blue"] if ntype in ("File", "Application") else THEME["neon_pink"] if ntype == "Algorithm" else THEME["neon_orange"]
+            graph_nodes.append({
+                "id": n["id"],
+                "label": n.get("name", n["id"]),
+                "type": ntype,
+                "color": color,
+                "detail": f"{ntype}: {n.get('name', n['id'])}"
+            })
+        graph_edges = [{"source": edge["from"], "target": edge["to"]} for edge in relationships]
+        _render_force_graph(graph_nodes, graph_edges)
+
         graph_df = pd.DataFrame([{
-            "From": nodes.get(edge["from"], {}).get("name", edge["from"]),
+            "From": nodes_map.get(edge["from"], {}).get("name", edge["from"]),
             "Relationship": edge["type"],
-            "To": nodes.get(edge["to"], {}).get("name", edge["to"]),
+            "To": nodes_map.get(edge["to"], {}).get("name", edge["to"]),
+        } for edge in relationships])
+        st.dataframe(graph_df, hide_index=True, width="stretch")
+    elif relationships:
+        graph_df = pd.DataFrame([{
+            "From": nodes_map.get(edge["from"], {}).get("name", edge["from"]),
+            "Relationship": edge["type"],
+            "To": nodes_map.get(edge["to"], {}).get("name", edge["to"]),
         } for edge in relationships])
         st.dataframe(graph_df, hide_index=True, width="stretch")
     else:
         st.info("No evidence relationships were recorded in this scan.")
+

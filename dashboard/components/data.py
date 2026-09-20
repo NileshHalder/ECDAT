@@ -160,9 +160,11 @@ def process_findings(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "data_sensitivity": f.get("data_sensitivity", "UNKNOWN"),
             "business_criticality": f.get("business_criticality", "UNKNOWN"),
             "migration_difficulty": f.get("migration_difficulty", "UNKNOWN"),
+            "dependency_count": f.get("dependency_count", 0),
             "hndl": f.get("hndl", {}),
             "risk_score": f.get("risk_score", 0),
             "risk_level": f.get("risk_level", sev),
+            "risk_factors": f.get("risk_factors", []),
             "risk_reason": f.get("risk_reason", "No risk explanation available"),
             "migration_priority": f.get("migration_priority", 0),
             "hybrid_option": hybrid_option,
@@ -198,6 +200,8 @@ def process_findings(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "Certificate": f.get("certificate") or f.get("certificate_info", {}).get("subject") or f.get("protocol"),
             "Application": f.get("application", "repository root"),
             "Certificate Info": f.get("certificate_info", {}),
+            "Risk Factors": f.get("risk_factors", []),
+            "Dependency Count": f.get("dependency_count", 0),
         })
 
     return processed

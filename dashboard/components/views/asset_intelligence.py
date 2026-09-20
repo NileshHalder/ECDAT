@@ -55,6 +55,7 @@ def render_asset_intelligence(results: dict[str, Any]):
         "Key Type": f["key_type"],
         "Key Size": f["key_size"] or "—",
         "Protocol": f["protocol"] or "—",
+        "Dependencies": f.get("dependency_count", 0),
         "Usage": f["usage"],
         "Purpose": f["purpose"],
         "Certificate": f["certificate"] or "—",
@@ -80,6 +81,7 @@ def render_asset_intelligence(results: dict[str, Any]):
             "Algorithm": st.column_config.TextColumn("Algorithm", width="medium"),
             "Source": st.column_config.TextColumn("Evidence Source", width="medium"),
             "Application": st.column_config.TextColumn("Application", width="medium"),
+            "Dependencies": st.column_config.NumberColumn("Deps", width="small"),
             "Risk": st.column_config.TextColumn("Quantum Risk Status", width="small"),
             "Location": st.column_config.TextColumn("Source Origin", width="large"),
             "Action": st.column_config.TextColumn("Remediation Strategy", width="medium"),
@@ -92,6 +94,21 @@ def render_asset_intelligence(results: dict[str, Any]):
             "Fused Confidence": st.column_config.TextColumn("Fused Confidence", width="small"),
         }
     )
+
+    # ─── CERTIFICATE DETAILS (If present) ───
+    cert_findings = [f for f in processed if f.get("certificate_info") and isinstance(f["certificate_info"], dict) and f["certificate_info"].get("subject")]
+    if cert_findings:
+        st.markdown('<div style="color:#fff;font-weight:700;font-size:1rem;margin:22px 0 15px;text-transform:uppercase;letter-spacing:1px;">Certificate Intelligence & Validity</div>', unsafe_allow_html=True)
+        cert_df = pd.DataFrame([{
+            "Asset ID": f["asset_id"],
+            "Subject": f["certificate_info"].get("subject", "—"),
+            "Issuer": f["certificate_info"].get("issuer", "—"),
+            "Serial": f["certificate_info"].get("serial_number", "—"),
+            "Valid From": f["certificate_info"].get("not_before", "—"),
+            "Valid Until": f["certificate_info"].get("not_after", "—"),
+            "Signature Algo": f["certificate_info"].get("signature_algorithm", f.get("algorithm", "—")),
+        } for f in cert_findings])
+        st.dataframe(cert_df, hide_index=True, width="stretch")
 
     conflicts = []
     seen_conflicts = set()
@@ -111,14 +128,15 @@ def render_asset_intelligence(results: dict[str, Any]):
         st.markdown('<div style="color:#fff;font-weight:700;font-size:1rem;margin:22px 0 15px;text-transform:uppercase;letter-spacing:1px;">Evidence Fusion Alerts</div>', unsafe_allow_html=True)
         st.dataframe(pd.DataFrame(conflicts), hide_index=True, width="stretch")
 
-    st.markdown('<div style="color:#fff;font-weight:700;font-size:1rem;margin:22px 0 15px;text-transform:uppercase;letter-spacing:1px;">Risk Rationale & HNDL</div>', unsafe_allow_html=True)
+    st.markdown('<div style="color:#fff;font-weight:700;font-size:1rem;margin:22px 0 15px;text-transform:uppercase;letter-spacing:1px;">Risk Factors & HNDL Horizon</div>', unsafe_allow_html=True)
     rationale_df = pd.DataFrame([{
         "Asset": f["asset_id"],
         "Risk": f["risk_level"],
-        "Reason": f["risk_reason"],
+        "Risk Factors": " • ".join(f.get("risk_factors", [])) if f.get("risk_factors") else f["risk_reason"],
         "Data Lifetime": f'{f["hndl"].get("data_lifetime_years", "?")} years',
         "Migration Time": f'{f["hndl"].get("migration_time_years", "?")} years',
         "Threat Horizon": f'{f["hndl"].get("crqc_arrival_years", "?")} years',
         "Recommendation": "Immediate migration" if f["hndl"].get("hndl_risk") else "Plan migration",
     } for f in processed])
     st.dataframe(rationale_df, hide_index=True, width="stretch")
+

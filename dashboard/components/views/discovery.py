@@ -100,3 +100,24 @@ def render_discovery(results: dict[str, Any]):
             x_title="Findings",
         )
         st.altair_chart(chart, width="stretch")
+
+    st.markdown("<br/>", unsafe_allow_html=True)
+
+    # Findings by Source Type
+    st.markdown('<div style="color:#fff;font-weight:700;font-size:1rem;margin-bottom:15px;text-transform:uppercase;letter-spacing:1px;">Scanning Channel & Source Type Breakdown</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        source_counts: dict[str, int] = {}
+        for f in findings:
+            stype = str(f.get("source_type", f.get("Source Type", "source code"))).replace("_", " ").title()
+            source_counts[stype] = source_counts.get(stype, 0) + 1
+
+        source_chart = horizontal_bar_chart(
+            [{"Source Type": k, "Findings": v} for k, v in sorted(source_counts.items(), key=lambda kv: -kv[1])],
+            x_field="Findings",
+            y_field="Source Type",
+            color=THEME["neon_orange"],
+            height=280,
+            x_title="Findings",
+        )
+        st.altair_chart(source_chart, width="stretch")
+

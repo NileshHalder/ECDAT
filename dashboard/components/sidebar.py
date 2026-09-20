@@ -204,7 +204,7 @@ def _render_nova_scan_controls():
     st.markdown(f'<div style="color: {THEME["text_muted"]}; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;">Mode Selection</div>', unsafe_allow_html=True)
     scan_mode = st.segmented_control(
         "Mode",
-        options=["PATH", "UPLOAD"],
+        options=["PATH", "UPLOAD", "GITHUB"],
         default="PATH",
         label_visibility="collapsed",
         key="side_scan_mode",
@@ -225,6 +225,19 @@ def _render_nova_scan_controls():
                 _execute_scan(path)
             else:
                 st.error("Engine requires a valid source path.")
+    elif scan_mode == "GITHUB":
+        repo_url = st.text_input(
+            "GitHub Repository URL",
+            placeholder="https://github.com/org/repo",
+            label_visibility="collapsed",
+            key="side_scan_github",
+        )
+        st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+        if st.button("CLONE & AUDIT", type="primary", width="stretch", key="side_run_github"):
+            if repo_url:
+                _execute_github_scan(repo_url)
+            else:
+                st.error("Engine requires a valid GitHub repository URL.")
     else:
         uploaded_files = st.file_uploader(
             "Artifacts",
@@ -236,6 +249,7 @@ def _render_nova_scan_controls():
         st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
         if st.button("EXECUTE AUDIT", type="primary", width="stretch", disabled=not uploaded_files, key="side_run_upload"):
             _execute_upload_scan(uploaded_files)
+
 
 def _execute_scan(path: str):
     """Execute scan via API."""

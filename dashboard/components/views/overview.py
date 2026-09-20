@@ -193,11 +193,25 @@ def render_overview(results: dict[str, Any]):
             st.caption(f"{deprecated} deprecated-algorithm findings")
             st.caption("CBOM export available for this scan")
 
-    if not history.empty and len(history) > 1:
+    if not history.empty:
         st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
-        st.markdown("#### Readiness trend")
-        trend = history.sort_values("completed_at")
-        st.line_chart(trend.set_index("completed_at")["readiness"], color=THEME["neon_blue"], height=180)
+        st.markdown("#### Audit & Scan History")
+        with st.container(border=True):
+            if len(history) > 1:
+                trend = history.sort_values("completed_at")
+                st.line_chart(trend.set_index("completed_at")["readiness"], color=THEME["neon_blue"], height=180)
+
+            hist_df = pd.DataFrame([{
+                "Scan ID": r["scan_id"],
+                "Completed At": r["completed_at"],
+                "Readiness Score": f"{r['readiness']:.1f}%",
+                "Critical Findings": r.get("critical", 0),
+                "Vulnerable Findings": r.get("vulnerable", 0),
+                "Current Scan": "ACTIVE" if r.get("is_current") else "—"
+            } for r in history.to_dict("records")])
+
+            st.dataframe(hist_df, hide_index=True, width="stretch")
+
 
     st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
 
